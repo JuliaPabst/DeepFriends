@@ -17,13 +17,17 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const logout = () => {
-    signOut(auth);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
   };
 
   return (
     <AuthContext.Provider value={{ user, logout }}>
-      {!loading && children} {/* Prevent rendering before auth state is set */}
+      {!loading && children} {/* Prevents rendering before auth state is set */}
     </AuthContext.Provider>
   );
 };
