@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../firebase";
-import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom"; // For opening chat page
+import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const Matches = () => {
   const [matches, setMatches] = useState([]);
   const [username, setUsername] = useState(null);
   const user = auth.currentUser;
-  const navigate = useNavigate(); // 🔗 Navigate to chat
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -52,7 +52,7 @@ const Matches = () => {
   }, [username]);
 
   const openChat = (match) => {
-    navigate(`/chat/${match.id}`); // Open chat page
+    navigate(`/chat/${match.id}`);
   };
 
   return (
@@ -64,7 +64,7 @@ const Matches = () => {
       ) : (
         matches.map((match, index) => {
           const matchUsername = match.user1 === username ? match.user2 : match.user1;
-          
+
           return (
             <MatchCard key={index} match={match} matchUsername={matchUsername} openChat={openChat} />
           );
@@ -74,9 +74,10 @@ const Matches = () => {
   );
 };
 
-// 🔥 Match Card Component (Fetches Full User Info)
+// 🔥 Match Card Component with Accept/Remove Match Buttons
 const MatchCard = ({ match, matchUsername, openChat }) => {
   const [matchProfile, setMatchProfile] = useState(null);
+  const [isAccepted, setIsAccepted] = useState(match.accepted || false); // Track match acceptance
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -90,22 +91,57 @@ const MatchCard = ({ match, matchUsername, openChat }) => {
     fetchUserProfile();
   }, [matchUsername]);
 
+  // ✅ Accept Match Function
+  const acceptMatch = async () => {
+    try {
+      const matchRef = doc(db, "matches", match.id);
+      await updateDoc(matchRef, { accepted: true });
+      setIsAccepted(true);
+    } catch (error) {
+      console.error("Error accepting match:", error);
+    }
+  };
+
+  // ❌ Remove Match Function
+  const removeMatch = async () => {
+    try {
+      const matchRef = doc(db, "matches", match.id);
+      await deleteDoc(matchRef);
+      setIsAccepted(false);
+    } catch (error) {
+      console.error("Error removing match:", error);
+    }
+  };
+
   return (
     <div 
-      style={{ border: "1px solid #ccc", padding: "15px", borderRadius: "10px", marginBottom: "10px", cursor: "pointer", display: "flex", alignItems: "center" }}
-      onClick={() => openChat(match)}
+      style={{ border: "1px solid #ccc", padding: "15px", borderRadius: "10px", marginBottom: "10px", display: "flex", alignItems: "center", flexDirection: "column" }}
     >
-      {matchProfile && <img src={matchProfile.profileImageURL} alt="Profile" style={{ width: "50px", height: "50px", borderRadius: "50%", marginRight: "10px" }} />}
-      <div>
-        <h3>{matchProfile ? matchProfile.username : "Loading..."}</h3>
-        <p><strong>Bio:</strong> {matchProfile?.bio}</p>
-        <p><strong>Interests:</strong> {matchProfile?.passions}</p>
-        <p><strong>Free Time:</strong> {matchProfile?.freeTime}</p>
-        <p><strong>Qualities in a Friend:</strong> {matchProfile?.qualitiesInFriend}</p>
-        <p><strong>Dreams:</strong> {matchProfile?.dreams}</p>
-        <p><strong>Deep Talk Topics:</strong> {matchProfile?.deepTalkTopic}</p>
-        <p><strong>Reason Matched:</strong> {match.reason}</p>
-      </div>
+      {matchProfile && <img src={matchProfile.profileImageURL} alt="Profile" style={{ width: "50px", height: "50px", borderRadius: "50%", marginBottom: "10px" }} />}
+      <h3>{matchProfile ? matchProfile.username : "Loading..."}</h3>
+      <p><strong>Bio:</strong> {matchProfile?.bio}</p>
+      <p><strong>Interests:</strong> {matchProfile?.passions}</p>
+      <p><strong>Free Time:</strong> {matchProfile?.freeTime}</p>
+      <p><strong>Qualities in a Friend:</strong> {matchProfile?.qualitiesInFriend}</p>
+      <p><strong>Dreams:</strong> {matchProfile?.dreams}</p>
+      <p><strong>Deep Talk Topics:</strong> {matchProfile?.deepTalkTopic}</p>
+      <p><strong>Reason Matched:</strong> {match.reason}</p>
+
+      {/* 🔥 Accept or Remove Match Button */}
+      {!isAccepted ? (
+        <button onClick={acceptMatch} style={{ background: "green", color: "white", padding: "10px", marginTop: "10px", border: "none", cursor: "pointer", borderRadius: "5px" }}>
+          ✅ Accept Match
+        </button>
+      ) : (
+        <button onClick={removeMatch} style={{ background: "red", color: "white", padding: "10px", marginTop: "10px", border: "none", cursor: "pointer", borderRadius: "5px" }}>
+          ❌ Remove Match
+        </button>
+      )}
+
+      {/* 🔗 Open Chat Button */}
+      <button onClick={() => openChat(match)} style={{ background: "#007bff", color: "white", padding: "10px", marginTop: "10px", border: "none", cursor: "pointer", borderRadius: "5px" }}>
+        💬 Start Chat
+      </button>
     </div>
   );
 };

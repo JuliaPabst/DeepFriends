@@ -11,3 +11,99 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* 🔹 General styles */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: 60px; /* Adjust this value if needed */
+}
+
+/* 🔹 Burger menu button */
+.burger-menu {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 🔹 Sidebar Navigation */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* Hidden by default */
+  width: 250px;
+  height: 100%;
+  background: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60px;
+  transition: left 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  left: 0; /* Show when open */
+}
+
+.sidebar a,
+.sidebar button {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 15px;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.sidebar a:hover,
+.sidebar button:hover {
+  background: #444;
+}
+
+/* 🔹 Logout Button */
+.logout-button {
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-top: 20px;
+  width: 80%;
+  text-align: center;
+}
+
+.logout-button:hover {
+  background: darkred;
+}
+
+/* 🔹 Main Content Styling */
+.main-content {
+  margin-left: 0;
+  padding: 20px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* 🔹 Adjust main content margin when sidebar is open */
+.sidebar.open + .main-content {
+  margin-left: 250px; /* Width of the sidebar */
+}
+
+/* 🔹 Overlay to close menu when clicking outside */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+}

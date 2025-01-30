@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import EditProfile from "./EditProfile/EditProfile";
 
 const Profile = () => {
   const user = auth.currentUser;
@@ -14,6 +15,7 @@ const Profile = () => {
     dreams: "",
     deepTalkTopic: ""
   });
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -29,7 +31,7 @@ const Profile = () => {
 
   return (
     <div>
-      <h2>{profile.username || "No Username"}</h2>
+      {!isEditing ? <div><h2>{profile.username || "No Username"}</h2>
       {profile.profileImageURL && <img src={profile.profileImageURL} alt="Profile" width="100" />}
       <p><strong>Bio:</strong> {profile.bio || "No Bio"}</p>
 
@@ -39,6 +41,9 @@ const Profile = () => {
       <p><strong>Qualities I Value in a Friend:</strong> {profile.qualitiesInFriend || "Not provided"}</p>
       <p><strong>My Dreams & Goals:</strong> {profile.dreams || "Not provided"}</p>
       <p><strong>Topics I Love to Deep Talk About:</strong> {profile.deepTalkTopic || "Not provided"}</p>
+      <button onClick={() => {setIsEditing(!isEditing)}}>Edit Profile</button>
+      </div>
+      : <EditProfile setIsEditing={setIsEditing}/>}
     </div>
   );
 };

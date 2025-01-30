@@ -7,6 +7,7 @@ import Profile from "./components/Profile/Profile";
 import HomeChat from "./components/Chat/HomeChat/HomeChat";
 import Matches from "./components/Matches/Matches";
 import ChatPage from "./components/Chat/ChatPage";
+import { FiMenu, FiX } from "react-icons/fi"; // Import icons
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -15,38 +16,49 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   const { user, logout } = useAuth();
-  const [redirectToHome, setRedirectToHome] = useState(false); // 🔥 Track logout redirect
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [redirectToHome, setRedirectToHome] = useState(false);
 
   const handleLogout = async () => {
     await logout();
-    setRedirectToHome(true); // 🔥 Trigger redirect
+    setRedirectToHome(true);
   };
 
   return (
     <Router>
-      {redirectToHome && <Navigate to="/" replace />} {/* 🔥 Redirect to home after logout */}
+      {redirectToHome && <Navigate to="/" replace />}
 
-      <nav>
-        {!user ? (
-          <div></div>
-        ) : (
-          <>
-            <Link to="/">Chat</Link> | 
-            <Link to="/profile">Profile</Link> | 
-            <Link to="/edit-profile">Edit Profile</Link> | 
-            <Link to="/matches">Matches</Link> |
-            <button onClick={handleLogout} style={{ marginLeft: "10px", cursor: "pointer" }}>Logout</button>
-          </>
+      <div className="app-container">
+        {user && (
+          <button className="burger-menu" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <FiX size={30} /> : <FiMenu size={30} />}
+          </button>
         )}
-      </nav>
 
-      <Routes>
-        <Route path="/" element={user ? <HomeChat /> : <Authentication />} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-        <Route path="/matches" element={<Matches />} />
-        <Route path="/chat/:matchId" element={<ChatPage />} />
-      </Routes>
+        <nav className={`sidebar ${menuOpen ? "open" : ""}`}>
+          {user && (
+            <>
+              <Link to="/" onClick={() => setMenuOpen(false)}>Chat</Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+              <Link to="/matches" onClick={() => setMenuOpen(false)}>Matches</Link>
+              <button onClick={handleLogout} className="logout-button">Logout</button>
+            </>
+          )}
+        </nav>
+
+        {/* 🔹 Main Content */}
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={user ? <HomeChat /> : <Authentication />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+            <Route path="/matches" element={<ProtectedRoute><Matches /></ProtectedRoute>} />
+            <Route path="/chat/:matchId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+          </Routes>
+        </div>
+      </div>
+
+      {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)}></div>}
     </Router>
   );
 }

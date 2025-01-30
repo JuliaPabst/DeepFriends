@@ -3,7 +3,7 @@ import { auth, db, storage } from "../../../firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-const EditProfile = () => {
+const EditProfile = ({setIsEditing}) => {
   const user = auth.currentUser;
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
@@ -73,6 +73,7 @@ const EditProfile = () => {
 
     alert("Profile updated!");
     setProfileImageURL(imageURL);
+    setIsEditing(false);
   };
 
   return (
